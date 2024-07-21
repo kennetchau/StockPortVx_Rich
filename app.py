@@ -1,5 +1,6 @@
 import requests 
 import pandas as pd 
+import cred
 from rich import print 
 from rich.layout import Layout 
 from rich.live import Live
@@ -40,11 +41,17 @@ def drawTable(df:pd.DataFrame, title:str)->Table:
 
     return table
 
-def drawPortDashboard(table1,table2):
+def drawPortDashboard(table1,table2)->Layout:
     layout = Layout()
-    layout.split_column(
-            Layout(name = 'upper'),
-            Layout(name = 'stockPortTrading'),
+    layout.split(
+            Layout(name = 'header', size = 3),
+            Layout(name = 'body', ratio = 1),
+            Layout(name = 'footer', size = 7)
+            )
+
+    layout['body'].split_column(
+            Layout(name = 'upper', ratio = 1),
+            Layout(name = 'stockPortTrading', ratio = 2),
             )
     #layout['upper'].split_row(
     #        Layout(name = 'stockOverView'),
@@ -53,6 +60,7 @@ def drawPortDashboard(table1,table2):
 
     #layout['stockOverView'].update(table1)
     # Comment out the split line until something is added to the second column
+    layout['header'].update('Stock Portfolio Tracker')
     layout['upper'].update(table1)
     layout['stockPortTrading'].update(table2)
     return layout
