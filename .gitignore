@@ -1,4 +1,4 @@
 # Set files that git shouldn't track
 
 data/*
-
+cred.py
