@@ -51,7 +51,7 @@ def drawPortDashboard(table1,table2,TotalBookCost)->Layout:
     layout.split(
             Layout(name = 'header', size = 3),
             Layout(name = 'body', ratio = 1),
-            Layout(name = 'footer', size = 7)
+            Layout(name = 'footer', size = 5)
             )
 
     layout['body'].split_column(
@@ -73,12 +73,13 @@ def drawPortDashboard(table1,table2,TotalBookCost)->Layout:
     layout['TotalBookCost'].update(Panel.fit(f"Total Book Cost: \n$ {TotalBookCost}"))
     layout['stockOverViewTable'].update(table1)
     layout['stockPortTrading'].update(table2)
+    layout['footer'].update(Panel('Data update at \nLive Data source from'))
     return layout
 
 
 def main():
     dataPath = 'data/data.json'
-
+    console = Console()
     # read the json for the stock Portfolio
     dfStockPortOver = Portfolio(dataPath)
     table1 = drawTable(dfStockPortOver.returnTable('Overview'), "Stock Portfolio")
