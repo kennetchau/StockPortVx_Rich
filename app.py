@@ -2,7 +2,9 @@ import requests
 import pandas as pd 
 import cred
 from rich import print 
+from rich.align import Align
 from rich.layout import Layout 
+from rich.panel import Panel
 from rich.live import Live
 from rich.console import Console
 from rich.table import Table
@@ -25,9 +27,12 @@ class Portfolio:
             case _:
                 return None
 
+    def returnBookCost(self)->str:
+        return str(round(self.dfStockPortOver['Book Cost'].sum(),2))
+
 
 def drawTable(df:pd.DataFrame, title:str)->Table:
-    table = Table(title = title, title_justify = 'left')
+    table = Table(title = title, title_justify = 'left', expand = True)
     df = df.round(2)
     
     # Adding columns
@@ -41,7 +46,7 @@ def drawTable(df:pd.DataFrame, title:str)->Table:
 
     return table
 
-def drawPortDashboard(table1,table2)->Layout:
+def drawPortDashboard(table1,table2,TotalBookCost)->Layout:
     layout = Layout()
     layout.split(
             Layout(name = 'header', size = 3),
@@ -50,18 +55,23 @@ def drawPortDashboard(table1,table2)->Layout:
             )
 
     layout['body'].split_column(
-            Layout(name = 'upper', ratio = 1),
-            Layout(name = 'stockPortTrading', ratio = 2),
+            Layout(name = 'upper'),
+            Layout(name = 'stockPortTrading', ratio = 1),
             )
-    #layout['upper'].split_row(
-    #        Layout(name = 'stockOverView'),
-    #        Layout(name = 'right'),
-    #        )
+    layout['upper'].split_row(
+            Layout(name = 'stockOverView'),
+            Layout(name = 'right'),
+            )
+    layout['stockOverView'].split_column(
+            Layout(name = 'TotalBookCost', size = 4),
+            Layout(name = 'stockOverViewTable')
+            )
 
-    #layout['stockOverView'].update(table1)
     # Comment out the split line until something is added to the second column
-    layout['header'].update('Stock Portfolio Tracker')
-    layout['upper'].update(table1)
+    layout['header'].update(Panel(Align('Stock Portfolio Tracker', align = 'center')))
+    #layout['upper'].update(table1)
+    layout['TotalBookCost'].update(Panel.fit(f"Total Book Cost: \n$ {TotalBookCost}"))
+    layout['stockOverViewTable'].update(table1)
     layout['stockPortTrading'].update(table2)
     return layout
 
@@ -73,7 +83,8 @@ def main():
     dfStockPortOver = Portfolio(dataPath)
     table1 = drawTable(dfStockPortOver.returnTable('Overview'), "Stock Portfolio")
     table2 = drawTable(dfStockPortOver.returnTable('records'), "Stock Transactions")
-    layout = drawPortDashboard(table1,table2)
+    totalBookCost = dfStockPortOver.returnBookCost()
+    layout = drawPortDashboard(table1, table2, totalBookCost)
     print(layout)
     
 
