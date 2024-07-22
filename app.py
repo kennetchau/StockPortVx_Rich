@@ -31,6 +31,9 @@ class Portfolio:
 
     def returnBookCost(self)->str:
         return str(round(self.dfStockPortOver['Book Cost'].sum(),2))
+    
+    def returnUniqueHold(self)->list:
+        return self.dfStockPortOver.Symbol.unique().tolist()
 
 
 def drawTable(df:pd.DataFrame, title:str)->Table:
