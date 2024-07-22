@@ -12,19 +12,20 @@ from rich.table import Table
 class Portfolio:
     def __init__(self, path):
         df = pd.read_json(path)
-        df['Book Cost'] = df['Quantity'] * df['Cost']
+        df['Total Cost'] = df['Quantity'] * df['Cost']
         dfStockPortOver = df.drop(columns = ['Date']).groupby(by = "Symbol").sum().reset_index(drop=False)
-        dfStockPortOver['Average Cost'] = dfStockPortOver['Book Cost']/dfStockPortOver['Quantity']
-        dfStockPortOver = dfStockPortOver[["Symbol", "Quantity", "Average Cost", "Book Cost"]]
-        self.dfStockPortRecords = df.sort_values(by='Date', ascending = False).head(10)
+        dfStockPortOver['Average Cost'] = dfStockPortOver['Total Cost']/dfStockPortOver['Quantity']
+        dfStockPortOver = dfStockPortOver[["Symbol", "Quantity", "Average Cost", "Total Cost"]]
+        dfStockPortOver = dfStockPortOver.rename(columns = {"Total Cost": "Book Cost"})
+        self.dfStockPortRecords = df.sort_values(by='Date', ascending = False)
         self.dfStockPortOver = dfStockPortOver.sort_values(by = "Book Cost", ascending = False)
 
     def returnTable(self, choice:str)->pd.DataFrame:
         match choice:
             case 'Overview':
-                return self.dfStockPortOver
+                return self.dfStockPortOver.head(5)
             case 'records':
-                return self.dfStockPortRecords
+                return self.dfStockPortRecords.head(10)
             case _:
                 return None
 
@@ -64,17 +65,21 @@ def drawPortDashboard(table1,table2,TotalBookCost)->Layout:
             Layout(name = 'right'),
             )
     layout['stockOverView'].split_column(
-            Layout(name = 'TotalBookCost', size = 4),
+            Layout(name = 'Cost', size = 4),
             Layout(name = 'stockOverViewTable')
             )
-
+    layout['Cost'].split_row(
+            Layout(name = 'TotalBookCost'),
+            Layout(name = 'UnrealizedGainOrLost'),
+            )
     # Comment out the split line until something is added to the second column
     layout['header'].update(Panel(Align('Stock Portfolio Tracker', align = 'center')))
     #layout['upper'].update(table1)
-    layout['TotalBookCost'].update(Panel.fit(f"Total Book Cost: \n$ {TotalBookCost}"))
+    layout['TotalBookCost'].update(Panel(f"Total Book Cost: \n$ {TotalBookCost}"))
+    layout['UnrealizedGainOrLost'].update(Panel(f"Unrealized Gain or Lost: \n $"))
     layout['stockOverViewTable'].update(table1)
     layout['stockPortTrading'].update(table2)
-    layout['footer'].update(Panel('Data update at \nLive Data source from'))
+    layout['footer'].update(Panel('Data updated at \nLive Data source from'))
     return layout
 
 
@@ -83,7 +88,7 @@ def main():
     console = Console()
     # read the json for the stock Portfolio
     dfStockPortOver = Portfolio(dataPath)
-    table1 = drawTable(dfStockPortOver.returnTable('Overview'), "Stock Portfolio")
+    table1 = drawTable(dfStockPortOver.returnTable('Overview'), "Top 5 Holdings")
     table2 = drawTable(dfStockPortOver.returnTable('records'), "Stock Transactions")
     totalBookCost = dfStockPortOver.returnBookCost()
     layout = drawPortDashboard(table1, table2, totalBookCost)
