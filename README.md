@@ -4,6 +4,8 @@ A simple terminal based dashboard for tracking your stocks. Written using python
 
 Sister product of the stockPortVx (Dash dashboard)
 
+Example Screenshot:
+
 <img src = "https://github.com/kennetchau/StockPortVx_Rich/blob/main/screenshots/Screenshot%20from%202024-07-22%2022-30-32.png">
 
 ## Future development
