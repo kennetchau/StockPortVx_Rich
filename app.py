@@ -1,6 +1,7 @@
 import requests 
 import pandas as pd 
 import cred
+import termgraph as tg
 from datetime import datetime
 from rich import print 
 from rich.align import Align
@@ -65,8 +66,11 @@ class Portfolio:
     def returnBookCost(self)->str:
         return str(round(self.dfStockPortOver['Book Cost'].sum(),2))
 
-    def returnUnrealizeGainOrLoss(self)->str:
+    def returnMarketValue(self)->str:
         return str(round(self.dfStockPortOver['Market Value'].sum(),2))
+    
+    def returnUnrealizeGainOrLoss(self)->str:
+        return str(round(self.dfStockPortOver['Market Value'].sum()- self.dfStockPortOver['Book Cost'].sum(),2))
     
     def returnUniqueHold(self)->list:
         return self.dfStockPortOver.Symbol.unique().tolist()
@@ -87,7 +91,7 @@ def drawTable(df:pd.DataFrame, title:str)->Table:
 
     return table
 
-def drawPortDashboard(table1,table2,TotalBookCost, UnrealizeGainOrLoss)->Layout:
+def drawPortDashboard(table1,table2,TotalBookCost, MarketValue, UnrealizeGainOrLoss)->Layout:
     current_date = datetime.now().strftime("%d %b %Y at %H:%M:%S %Z")
     layout = Layout()
     layout.split(
@@ -110,18 +114,22 @@ def drawPortDashboard(table1,table2,TotalBookCost, UnrealizeGainOrLoss)->Layout:
             )
     layout['Cost'].split_row(
             Layout(name = 'TotalBookCost'),
+            Layout(name = 'MarketValue'),
             Layout(name = 'UnrealizedGainOrLoss'),
             )
     # Comment out the split line until something is added to the second column
     layout['header'].update(Panel(Align('Stock Portfolio Tracker', align = 'center')))
     #layout['upper'].update(table1)
     layout['TotalBookCost'].update(Panel(f"Total Book Cost: \n$ {TotalBookCost}"))
-    layout['UnrealizedGainOrLoss'].update(Panel(f"Unrealized Gain or Loss: \n $ {UnrealizeGainOrLoss}"))
+    layout['MarketValue'].update(Panel(f"MarketValue: \n $ {MarketValue}"))
+    layout['UnrealizedGainOrLoss'].update(Panel(f"Unrealized Gain Or Loss: \n $ {UnrealizeGainOrLoss}"))
     layout['stockOverViewTable'].update(table1)
     layout['stockPortTrading'].update(table2)
     layout['footer'].update(Panel(f'Data updated at {current_date}\nLive Data source from twelve data'))
     return layout
 
+def drawGraph(data:pd.DataFrame)->str:
+    return None
 
 def main():
     dataPath = 'data/data.json'
@@ -131,8 +139,9 @@ def main():
     table1 = drawTable(dfStockPortOver.returnTable('Overview'), "Top 5 Holdings")
     table2 = drawTable(dfStockPortOver.returnTable('records'), "Stock Transactions")
     totalBookCost = dfStockPortOver.returnBookCost()
-    UnrealizeGainOrLoss = dfStockPortOver.returnUnrealizeGainOrLoss()
-    layout = drawPortDashboard(table1, table2, totalBookCost, UnrealizeGainOrLoss)
+    MarketValue = dfStockPortOver.returnMarketValue()
+    UGainOrLoss = dfStockPortOver.returnUnrealizeGainOrLoss()
+    layout = drawPortDashboard(table1, table2, totalBookCost, MarketValue, UGainOrLoss)
     print(layout)
     
 
