@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+
+"""
+    This is a simple terminal dashboard build using rich, pandas, termplotlib
+    Its purposes is to allow the user to track his stock portfolio from the terminal
+    Leveraging twelve data api to pull real time data
+
+    Author: Kenneth Chau
+    Build: Python 3.12
+
+"""
+
 import requests 
 import pandas as pd 
 import cred
