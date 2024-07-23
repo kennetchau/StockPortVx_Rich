@@ -10,9 +10,9 @@
 
 """
 
-import requests 
-import pandas as pd 
 import cred
+import pandas as pd 
+import requests 
 import termplotlib as tpl
 from datetime import datetime
 from rich import print 
