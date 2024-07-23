@@ -1,7 +1,7 @@
 import requests 
 import pandas as pd 
 import cred
-import termplotlib
+import termplotlib as tpl
 from datetime import datetime
 from rich import print 
 from rich.align import Align
@@ -91,7 +91,7 @@ def drawTable(df:pd.DataFrame, title:str)->Table:
 
     return table
 
-def drawPortDashboard(table1,table2,TotalBookCost, MarketValue, UnrealizeGainOrLoss)->Layout:
+def drawPortDashboard(table1,table2,TotalBookCost, MarketValue, UnrealizeGainOrLoss, Graph)->Layout:
     current_date = datetime.now().strftime("%d %b %Y at %H:%M:%S %Z")
     layout = Layout()
     layout.split(
@@ -106,7 +106,7 @@ def drawPortDashboard(table1,table2,TotalBookCost, MarketValue, UnrealizeGainOrL
             )
     layout['upper'].split_row(
             Layout(name = 'stockOverView'),
-            Layout(name = 'right'),
+            Layout(name = 'stockOverViewBar'),
             )
     layout['stockOverView'].split_column(
             Layout(name = 'Cost', size = 4),
@@ -119,17 +119,19 @@ def drawPortDashboard(table1,table2,TotalBookCost, MarketValue, UnrealizeGainOrL
             )
     # Comment out the split line until something is added to the second column
     layout['header'].update(Panel(Align('Stock Portfolio Tracker', align = 'center')))
-    #layout['upper'].update(table1)
-    layout['TotalBookCost'].update(Panel(f"Total Book Cost: \n$ {TotalBookCost}"))
-    layout['MarketValue'].update(Panel(f"MarketValue: \n $ {MarketValue}"))
-    layout['UnrealizedGainOrLoss'].update(Panel(f"Unrealized Gain Or Loss: \n $ {UnrealizeGainOrLoss}"))
+    layout['stockOverViewBar'].update(Panel(Graph, title = 'Portfolio Distribution', title_align = 'center'))
+    layout['TotalBookCost'].update(Panel(f"$ {TotalBookCost}", title="Total Book Cost", title_align = 'center'))
+    layout['MarketValue'].update(Panel(f"$ {MarketValue}", title="Market Value", title_align = 'center'))
+    layout['UnrealizedGainOrLoss'].update(Panel(f"$ {UnrealizeGainOrLoss}", title = "Unrealized Gain or Loss", title_align = 'center'))
     layout['stockOverViewTable'].update(table1)
     layout['stockPortTrading'].update(table2)
     layout['footer'].update(Panel(f'Data updated at {current_date}\nLive Data source from twelve data'))
     return layout
 
-def drawGraph(data:pd.DataFrame)->str:
-    return None
+def drawGraph(data:pd.DataFrame, xValue:str, yValue:str)->str:
+    fig = tpl.figure()
+    fig.barh(data[xValue].values, data[yValue].values,force_ascii = True)
+    return fig.get_string()
 
 def main():
     dataPath = 'data/data.json'
@@ -138,10 +140,11 @@ def main():
     dfStockPortOver = Portfolio(dataPath)
     table1 = drawTable(dfStockPortOver.returnTable('Overview'), "Top 5 Holdings")
     table2 = drawTable(dfStockPortOver.returnTable('records'), "Stock Transactions")
+    Graph = drawGraph(dfStockPortOver.returnTable('Overview'), 'Market Value', 'Symbol')
     totalBookCost = dfStockPortOver.returnBookCost()
     MarketValue = dfStockPortOver.returnMarketValue()
     UGainOrLoss = dfStockPortOver.returnUnrealizeGainOrLoss()
-    layout = drawPortDashboard(table1, table2, totalBookCost, MarketValue, UGainOrLoss)
+    layout = drawPortDashboard(table1, table2, totalBookCost, MarketValue, UGainOrLoss, Graph)
     print(layout)
     
 
