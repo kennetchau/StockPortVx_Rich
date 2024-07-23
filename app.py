@@ -1,7 +1,7 @@
 import requests 
 import pandas as pd 
 import cred
-import termgraph as tg
+import termplotlib
 from datetime import datetime
 from rich import print 
 from rich.align import Align
