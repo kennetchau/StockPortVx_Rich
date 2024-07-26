@@ -29,6 +29,7 @@ class Portfolio:
 
         # Set the original df as the trading record table
         self.dfStockPortRecords = df.sort_values(by='Date', ascending = False)
+        self.dfStockPortRecords = self.dfStockPortRecords.rename(columns = {'Cost':'Individual Cost'})
         
         # Build the stock portfolio overview table, this table will show the live data of each stock price
         df['Total Cost'] = df['Quantity'] * df['Cost']
@@ -59,6 +60,7 @@ class Portfolio:
         currentDf['Current Price'] = currentDf['Symbol'].apply(applyUpdatesPrices)
         currentDf['Market Value'] = currentDf['Current Price'] * currentDf['Quantity']
         currentDf['% Change'] = (currentDf['Market Value']/currentDf['Book Cost'] - 1)*100
+        currentDf = currentDf[["Symbol", "Quantity", "Average Cost","Current Price", "Book Cost", "Market Value", "% Change"]]
         return currentDf
 
 
@@ -109,7 +111,7 @@ def drawPortDashboard(table1,table2,TotalBookCost, MarketValue, UnrealizeGainOrL
     layout.split(
             Layout(name = 'header', size = 3),
             Layout(name = 'body', ratio = 1),
-            Layout(name = 'footer', size = 5)
+            Layout(name = 'footer', size = 6)
             )
 
     layout['body'].split_column(
@@ -137,7 +139,7 @@ def drawPortDashboard(table1,table2,TotalBookCost, MarketValue, UnrealizeGainOrL
     layout['UnrealizedGainOrLoss'].update(Panel(f"$ {UnrealizeGainOrLoss}", title = "Unrealized Gain or Loss", title_align = 'center'))
     layout['stockOverViewTable'].update(table1)
     layout['stockPortTrading'].update(table2)
-    layout['footer'].update(Panel(f'Data updated at {current_date}\nLive Data source from twelve data'))
+    layout['footer'].update(Panel(f'Data updated at {current_date}\nLive Data source from twelve data\nSome data might not be avaliable depends on your api subscription'))
     return layout
 
 def drawGraph(data:pd.DataFrame, xValue:str, yValue:str)->str:
