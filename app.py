@@ -61,7 +61,8 @@ class Portfolio:
         currentDf['Current Price'] = currentDf['Symbol'].apply(applyUpdatesPrices)
         currentDf['Market Value'] = currentDf['Current Price'] * currentDf['Quantity']
         currentDf['% Change'] = (currentDf['Market Value']/currentDf['Book Cost'] - 1)*100
-        currentDf = currentDf[["Symbol", "Quantity", "Average Cost","Current Price", "Book Cost", "Market Value", "% Change"]]
+        currentDf['Unrealized Gain or Loss'] = currentDf['Market Value'] - currentDf['Book Cost']
+        currentDf = currentDf[["Symbol", "Quantity", "Average Cost","Current Price", "Book Cost", "Market Value", "% Change", "Unrealized Gain or Loss"]]
         return currentDf
 
 
