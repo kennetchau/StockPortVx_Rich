@@ -14,14 +14,15 @@ import cred
 import pandas as pd 
 import requests 
 import termplotlib as tpl
-from datetime import datetime
+from datetime import datetime, time
 from rich import print 
 from rich.align import Align
-from rich.layout import Layout 
-from rich.panel import Panel
-from rich.live import Live
 from rich.console import Console
+from rich.layout import Layout 
+from rich.live import Live
+from rich.panel import Panel
 from rich.table import Table
+from rich.text import Text
 
 class Portfolio:
     def __init__(self, path):
@@ -106,10 +107,24 @@ def drawTable(df:pd.DataFrame, title:str)->Table:
     return table
 
 def drawPortDashboard(table1,table2,TotalBookCost, MarketValue, UnrealizeGainOrLoss, Graph)->Layout:
+    # Get current date and time
     current_date = datetime.now().strftime("%d %b %Y at %H:%M:%S %Z")
+    current_time = datetime.now().time()
+    current_weekdate = datetime.today().weekday()
+    
+    # Check if market is open
+    market_open = current_time >= time(9,30) and current_time <= time(16,00) and (current_weekdate != 5 and current_weekdate != 6)
+    if market_open:
+        marketStatus = Text(f"It is currently {current_time}, Market is open")
+        marketStatus.stylize("green")
+    else:
+        marketStatus = Text(f"It is currently {current_time}, Market is close")
+        marketStatus.stylize("red")
+
     layout = Layout()
     layout.split(
             Layout(name = 'header', size = 3),
+            Layout(name = 'MarketStatus', size = 3),
             Layout(name = 'body', ratio = 1),
             Layout(name = 'footer', size = 6)
             )
@@ -133,6 +148,7 @@ def drawPortDashboard(table1,table2,TotalBookCost, MarketValue, UnrealizeGainOrL
             )
     # Comment out the split line until something is added to the second column
     layout['header'].update(Panel(Align('Stock Portfolio Tracker', align = 'center')))
+    layout['MarketStatus'].update(Panel(Align(marketStatus, align = 'left')))
     layout['stockOverViewBar'].update(Panel(Graph, title = 'Portfolio Distribution', title_align = 'center'))
     layout['TotalBookCost'].update(Panel(f"$ {TotalBookCost}", title="Total Book Cost", title_align = 'center'))
     layout['MarketValue'].update(Panel(f"$ {MarketValue}", title="Market Value", title_align = 'center'))
@@ -149,7 +165,6 @@ def drawGraph(data:pd.DataFrame, xValue:str, yValue:str)->str:
 
 def main():
     dataPath = 'data/data.json'
-    console = Console()
     # read the json for the stock Portfolio
     dfStockPortOver = Portfolio(dataPath)
     table1 = drawTable(dfStockPortOver.returnTable('Overview'), "Top 5 Holdings")
