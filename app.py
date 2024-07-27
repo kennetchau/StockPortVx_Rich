@@ -107,21 +107,14 @@ def drawTable(df:pd.DataFrame, title:str)->Table:
 
     return table
 
-def drawPortDashboard(table1,table2,TotalBookCost, MarketValue, UnrealizeGainOrLoss, Graph)->Layout:
-    # Get current date and time
+def drawPortDashboard(current_time, market_open, table1, table2, TotalBookCost, MarketValue, UnrealizeGainOrLoss, Graph)->Layout:
     current_date = datetime.now().strftime("%d %b %Y at %H:%M:%S %Z")
-    current_time = datetime.now().time()
-    current_weekdate = datetime.today().weekday()
-    
-    # Check if market is open
-    market_open = current_time >= time(9,30) and current_time <= time(16,00) and (current_weekdate != 5 and current_weekdate != 6)
     if market_open:
         marketStatus = Text(f"It is currently {current_time}, Market is open")
         marketStatus.stylize("green")
     else:
         marketStatus = Text(f"It is currently {current_time}, Market is close")
         marketStatus.stylize("red")
-
     layout = Layout()
     layout.split(
             Layout(name = 'header', size = 3),
@@ -165,16 +158,31 @@ def drawGraph(data:pd.DataFrame, xValue:str, yValue:str)->str:
     return fig.get_string()
 
 def main():
+    # Get current date and time
     dataPath = 'data/data.json'
+    
     # read the json for the stock Portfolio
     dfStockPortOver = Portfolio(dataPath)
+    
+    # Get the current date and time
+    current_time = datetime.now().time()
+    current_weekdate = datetime.today().weekday()
+    
+    # Check if market is open
+    market_open = current_time >= time(9,30) and current_time <= time(16,00) and (current_weekdate != 5 and current_weekdate != 6)
+    
+    # Draw the tables and graphs
     table1 = drawTable(dfStockPortOver.returnTable('Overview'), "Top 5 Holdings")
     table2 = drawTable(dfStockPortOver.returnTable('records'), "Stock Transactions")
     Graph = drawGraph(dfStockPortOver.returnTable('Overview'), 'Market Value', 'Symbol')
+    
+    # Getting some key stats
     totalBookCost = dfStockPortOver.returnBookCost()
     MarketValue = dfStockPortOver.returnMarketValue()
     UGainOrLoss = dfStockPortOver.returnUnrealizeGainOrLoss()
-    layout = drawPortDashboard(table1, table2, totalBookCost, MarketValue, UGainOrLoss, Graph)
+    
+    # Draw the layout
+    layout = drawPortDashboard(current_time, market_open, table1, table2, totalBookCost, MarketValue, UGainOrLoss, Graph)
     print(layout)
     
 
