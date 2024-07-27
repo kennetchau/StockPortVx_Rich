@@ -142,7 +142,7 @@ def drawPortDashboard(current_time, market_open, table1, table2, TotalBookCost, 
             )
     # Comment out the split line until something is added to the second column
     layout['header'].update(Panel(Align('Stock Portfolio Tracker', align = 'center')))
-    layout['MarketStatus'].update(Panel(Align(marketStatus, align = 'left')))
+    layout['MarketStatus'].update(Panel(Align(marketStatus, align = 'left'), title = "Market Status", title_align = "left"))
     layout['stockOverViewBar'].update(Panel(Graph, title = 'Portfolio Distribution', title_align = 'center'))
     layout['TotalBookCost'].update(Panel(f"$ {TotalBookCost}", title="Total Book Cost", title_align = 'center'))
     layout['MarketValue'].update(Panel(f"$ {MarketValue}", title="Market Value", title_align = 'center'))
