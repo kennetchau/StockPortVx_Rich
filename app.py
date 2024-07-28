@@ -85,12 +85,26 @@ class Portfolio:
     def returnMarketValue(self)->str:
         return str(round(self.dfStockPortOver['Market Value'].sum(),2))
     
-    def returnUnrealizeGainOrLoss(self)->str:
-        return str(round(self.dfStockPortOver['Market Value'].sum()- self.dfStockPortOver['Book Cost'].sum(),2))
+    def returnUnrealizeGainOrLoss(self)->list:
+        Value = round(self.dfStockPortOver['Market Value'].sum()- self.dfStockPortOver['Book Cost'].sum(),2)
+        if Value > 0:
+            return str(Value), True
+        else:
+            return str(Value), False
     
     def returnUniqueHold(self)->list:
         return self.dfStockPortOver.Symbol.unique().tolist()
 
+
+def stylingText(TrueFalse:bool, String:str)->Text:
+    if TrueFalse:
+        TextObj = Text(String)
+        TextObj.stylize("green")
+        return TextObj
+    else:
+        TextObj = Text(String)
+        TextObj.stylize("red")
+        return TextObj
 
 def drawTable(df:pd.DataFrame, title:str)->Table:
     table = Table(title = title, title_justify = 'left', expand = True)
@@ -109,12 +123,17 @@ def drawTable(df:pd.DataFrame, title:str)->Table:
 
 def drawPortDashboard(current_time, market_open, table1, table2, TotalBookCost, MarketValue, UnrealizeGainOrLoss, Graph)->Layout:
     current_date = datetime.now().strftime("%d %b %Y at %H:%M:%S %Z")
+    
+    # Get if market is open and format the text accordingly
     if market_open:
-        marketStatus = Text(f"It is currently {current_time}, Market is open")
-        marketStatus.stylize("green")
+        marketStatus = f"It is currently {current_time}, Market is open"
     else:
-        marketStatus = Text(f"It is currently {current_time}, Market is close")
-        marketStatus.stylize("red")
+        marketStatus = f"It is currently {current_time}, Market is close"
+    marketStatus = stylingText(market_open, marketStatus)
+    
+    # Get the unrealized gain and lost and format the text accordingly
+    UGainOrLoss = stylingText(UnrealizeGainOrLoss[1], f'$ {UnrealizeGainOrLoss[0]}')
+
     layout = Layout()
     layout.split(
             Layout(name = 'header', size = 3),
@@ -146,7 +165,7 @@ def drawPortDashboard(current_time, market_open, table1, table2, TotalBookCost, 
     layout['stockOverViewBar'].update(Panel(Graph, title = 'Portfolio Distribution', title_align = 'center'))
     layout['TotalBookCost'].update(Panel(f"$ {TotalBookCost}", title="Total Book Cost", title_align = 'center'))
     layout['MarketValue'].update(Panel(f"$ {MarketValue}", title="Market Value", title_align = 'center'))
-    layout['UnrealizedGainOrLoss'].update(Panel(f"$ {UnrealizeGainOrLoss}", title = "Unrealized Gain or Loss", title_align = 'center'))
+    layout['UnrealizedGainOrLoss'].update(Panel(UGainOrLoss, title = "Unrealized Gain or Loss", title_align = 'center'))
     layout['stockOverViewTable'].update(table1)
     layout['stockPortTrading'].update(table2)
     layout['footer'].update(Panel(f'Data updated at {current_date}\nLive Data source from twelve data\nSome data might not be avaliable depends on your api subscription'))
