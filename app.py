@@ -125,6 +125,7 @@ def drawPortDashboard(current_time, market_open, table1, table2, TotalBookCost, 
     current_date = datetime.now().strftime("%d %b %Y at %H:%M:%S %Z")
     
     # Get if market is open and format the text accordingly
+    current_time = current_time.strftime("%H:%M:%S")
     if market_open:
         marketStatus = f"It is currently {current_time}, Market is open"
     else:
