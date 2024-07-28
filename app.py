@@ -179,9 +179,7 @@ def drawGraph(data:pd.DataFrame, xValue:str, yValue:str)->str:
 def main():
     # Get current date and time
     dataPath = 'data/data.json'
-    
-    # read the json for the stock Portfolio
-    dfStockPortOver = Portfolio(dataPath)
+    apiCallCount = 0
     
     # Get the current date and time
     current_time = datetime.now().time()
@@ -189,6 +187,9 @@ def main():
     
     # Check if market is open
     market_open = current_time >= time(9,30) and current_time <= time(16,00) and (current_weekdate != 5 and current_weekdate != 6)
+    
+    # read the json for the stock Portfolio
+    dfStockPortOver = Portfolio(dataPath)
     
     # Draw the tables and graphs
     table1 = drawTable(dfStockPortOver.returnTable('Overview'), "Top 5 Holdings")
