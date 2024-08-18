@@ -6,7 +6,7 @@ Sister product of the stockPortVx (Dash dashboard)
 
 Example Screenshot:
 
-<img src = "https://github.com/kennetchau/StockPortVx_Rich/blob/main/screenshots/Screenshot%20from%202024-07-22%2022-30-32.png">
+<img src = "https://github.com/kennetchau/StockPortVx_Rich/blob/main/screenshots/Screenshot%20from%202024-08-18%2010-33-36.png">
 
 ## Future development
 - Change current layout to a live table
